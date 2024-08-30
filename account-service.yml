@@ -1,0 +1,71 @@
+welcome:
+  message: "Welcome to Spring Cloud Banking App Account Config (GIT) !!!"
+spring:
+  web:
+    cors:
+      allowed-origins: "http://localhost:5173"
+      allowed-methods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - OPTIONS
+      allowed-headers:
+        - "*"
+      allow-credentials: true
+  cloud:
+    config:
+      discovery:
+        enabled: true
+        service-id: config-server
+      profile: default
+  config:
+    import: "optional:configserver:"
+  datasource:
+    url: jdbc:mysql://localhost:3306/account_service
+    username: training
+    password: training
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost}:${KAFKA_BOOTSTRAP_SERVERS_PORT:9092}
+
+server:
+  port: 3031
+
+resilience4j.circuitbreaker:
+  configs:
+    default:
+      registerHealthIndicator: true
+      #The size of the sliding window that the Circuit Breaker uses to record call outcomes (successes, failures, slow calls).
+      slidingWindowSize: 3
+      #defines the type of the sliding window: COUNT_BASED OR TIME_BASED
+      slidingWindowType: TIME_BASED
+      #The minimum number of calls that must be evaluated (counted) before the Circuit Breaker can calculate the error rate or slow call rate
+      minimumNumberOfCalls: 1
+      #The percentage threshold for slow calls. If the percentage of slow calls is above this threshold, the Circuit Breaker will transition to the open state
+      slowCallRateThreshold: 10
+      #A slow call is defined as a call that exceeds a configurable time limit
+      slowCallDurationThreshold: 1s
+      #The failure rate threshold is the percentage of failed calls out of the total recorded calls that will trigger the Circuit Breaker to open
+      failureRateThreshold: 10
+      #The number of calls that are allowed to pass through when the Circuit Breaker is in the half-open state.
+      permittedNumberOfCallsInHalfOpenState: 1
+      automaticTransitionFromOpenToHalfOpenEnabled: true
+      waitDurationInOpenState: 15s
+      eventConsumerBufferSize: 1
+
+resilience4j.timelimiter:
+  configs:
+    default:
+      timeoutDuration: 2s
+      cancelRunningFuture: true
+
+#Enable Actuator Endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
